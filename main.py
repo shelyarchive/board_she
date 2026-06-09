@@ -16,11 +16,9 @@ while True:
         boards = board_dao.select_all()
         print("\n--- 전체 게시글 목록 ---")
         
-        # 💡 [중요] board_dao.py에 select_all()도 이름 형태로 가져오게 맞춰줍니다.
-        # 만약 여기서 에러가 나면 아래 '참고' 부분을 봐주세요!
+        
         for board in boards:
-            # 이제 숫자가 아닌 이름(key)으로 안전하게 출력합니다.
-            # 사용하시는 구조에 따라 아래 형식을 맞춰주세요.
+          
             if isinstance(board, dict):
                 print(f"번호: {board['id']} | 제목: {board['title']} | 작성자: {board['writer']} | 조회수: {board['views']} | 날짜: {board['created_at']}")
             else:
@@ -35,7 +33,7 @@ while True:
         password = input("게시글 비밀번호 설정: ")
         
         board_dao.insert_board(title, content, writer, password)
-        print("💡 글이 성공적으로 등록되었습니다!\n")
+        print(" 글이 성공적으로 등록되었습니다!\n")
 
     elif menu == "3":  # 3. 내용 상세보기
         print("\n--- 글 내용 보기 ---")
@@ -60,15 +58,15 @@ while True:
         
         board = board_dao.select_one(board_id)
         if board:
-            # 💡 이제 무조건 이 안으로 들어와서 힌트가 뜹니다!
+            
             db_password = str(board['password']).strip() 
-            print(f"🔍 [힌트] DB에 저장된 실제 비밀번호: '{db_password}'")
+            print(f" [힌트] DB에 저장된 실제 비밀번호: '{db_password}'")
             
             input_password = input("게시글 비밀번호를 입력하세요: ").strip()
             
             if input_password == db_password:
                 board_dao.delete_board(board_id)
-                print(f"🗑️ {board_id}번 글이 정상적으로 삭제되었습니다.\n")
+                print(f" {board_id}번 글이 정상적으로 삭제되었습니다.\n")
             else:
                 print("❌ 비밀번호가 틀렸습니다. 삭제할 수 없습니다.\n")
         else:

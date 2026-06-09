@@ -52,7 +52,7 @@ class BoardDAO:
 
         sql = "SELECT * FROM board WHERE id = %s"
         cursor.execute(sql, (board_id,))
-        result = cursor.fetchone()  # 1개만 가져올 때는 fetchone()을 씁니다.
+        result = cursor.fetchone() 
         cursor.close()
         conn.close()
         return result    
@@ -62,6 +62,6 @@ class BoardDAO:
         cursor = conn.cursor()
         sql = "DELETE FROM board WHERE id = %s"
         cursor.execute(sql, (board_id,))
-        conn.commit()  # 삭제 후에도 꼭 commit을 해줘야 반영됩니다.
+        conn.commit()  
         cursor.close()
         conn.close()
