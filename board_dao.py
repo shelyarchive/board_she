@@ -19,7 +19,7 @@ class BoardDAO:
     
     def select_all(self):
         conn = self.get_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
 
         sql = """
         SELECT *
@@ -33,3 +33,35 @@ class BoardDAO:
         conn.close()
 
         return result
+    
+    def insert_board(self, title, content, writer, password):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        sql = "INSERT INTO board (title, content, writer, password) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (title, content, writer, password))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    def select_one(self, board_id):
+        conn = self.get_connection()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        update_sql = "UPDATE board SET views = views + 1 WHERE id = %s"
+        cursor.execute(update_sql, (board_id,))
+        conn.commit()
+
+        sql = "SELECT * FROM board WHERE id = %s"
+        cursor.execute(sql, (board_id,))
+        result = cursor.fetchone()  # 1개만 가져올 때는 fetchone()을 씁니다.
+        cursor.close()
+        conn.close()
+        return result    
+    
+    def delete_board(self, board_id):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        sql = "DELETE FROM board WHERE id = %s"
+        cursor.execute(sql, (board_id,))
+        conn.commit()  # 삭제 후에도 꼭 commit을 해줘야 반영됩니다.
+        cursor.close()
+        conn.close()
