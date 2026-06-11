@@ -1,4 +1,5 @@
 from board_dao import *
+import re
 
 board_dao = BoardDAO()
 
@@ -7,25 +8,40 @@ while True:
     print("1.목록  2.등록  3.내용  4.삭제  0.종료")
     print("=" * 50)
 
-    menu = input("선택 > ")
+    # 사용자가 입력한 값의 앞뒤 공백을 자릅니다.
+    user_input = input("선택 > ").strip()
 
-    if menu == "0":
+    # 💡 [버그 해결 포인트 1] 키보드 입력 오류로 "02", "01" 등이 들어오는 현상 방지
+    # 입력값 중에서 숫자(0-4)만 싹 추출합니다.
+    numbers = re.findall(r'[0-4]', user_input)
+    
+    # 만약 숫자가 하나도 발견되지 않았다면 예외 처리
+    if not numbers:
+        print("\n❌ 잘못된 입력입니다. '0 ~ 4' 사이의 숫자만 입력해주세요!\n")
+        continue
+        
+    # 💡 [버그 해결 포인트 2] "02" 처럼 들어오면 맨 마지막 숫자('2')만 메뉴로 선택합니다.
+    menu = int(numbers[-1])
+
+    # --- 이제 안심하고 각 메뉴를 숫자로 비교합니다 ---
+    if menu == 0:
         break
 
-    elif menu == "1":  # 1. 목록 보기
+    elif menu == 1:  # 1. 목록 보기
         boards = board_dao.select_all()
         print("\n--- 전체 게시글 목록 ---")
         
-        
-        for board in boards:
-          
-            if isinstance(board, dict):
-                print(f"번호: {board['id']} | 제목: {board['title']} | 작성자: {board['writer']} | 조회수: {board['views']} | 날짜: {board['created_at']}")
-            else:
-                print(f"번호: {board[0]} | 제목: {board[1]} | 작성자: {board[3]} | 조회수: {board[5]} | 날짜: {board[4]}")
+        if not boards:
+            print("📭 등록된 게시글이 없거나 데이터베이스 연결을 확인해 주세요.")
+        else:
+            for board in boards:
+                if isinstance(board, dict):
+                    print(f"번호: {board['id']} | 제목: {board['title']} | 작성자: {board['writer']} | 조회수: {board['views']} | 날짜: {board['created_at']}")
+                else:
+                    print(f"번호: {board[0]} | 제목: {board[1]} | 작성자: {board[3]} | 조회수: {board[5]} | 날짜: {board[4]}")
         print()
 
-    elif menu == "2":  # 2. 등록하기
+    elif menu == 2:  # 2. 등록하기
         print("\n--- 새 글 등록 ---")
         title = input("제목 입력: ")
         content = input("내용 입력: ")
@@ -35,7 +51,7 @@ while True:
         board_dao.insert_board(title, content, writer, password)
         print(" 글이 성공적으로 등록되었습니다!\n")
 
-    elif menu == "3":  # 3. 내용 상세보기
+    elif menu == 3:  # 3. 내용 상세보기
         print("\n--- 글 내용 보기 ---")
         board_id = input("조회할 글 번호(ID) 입력: ")
         
@@ -52,13 +68,12 @@ while True:
         else:
             print("❌ 해당 번호의 게시글이 존재하지 않습니다.\n")
 
-    elif menu == "4":  # 4. 삭제하기
+    elif menu == 4:  # 4. 삭제하기
         print("\n--- 글 삭제 ---")
         board_id = input("삭제할 글 번호(ID) 입력: ")
         
         board = board_dao.select_one(board_id)
         if board:
-            
             db_password = str(board['password']).strip() 
             print(f" [힌트] DB에 저장된 실제 비밀번호: '{db_password}'")
             
